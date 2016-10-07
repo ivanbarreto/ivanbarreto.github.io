@@ -1,23 +1,42 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html ng-app="">
+<head>
+    <style>
+        #diagramContainer {
+            padding: 20px;
+            width:80%; height: 200px;
+            border: 1px solid gray;
+        }
+        
+        .item {
+            height:80px; width: 80px;
+            border: 1px solid blue;
+            float: left;
+        }
+    </style>
+</head>
+<body>
 
-<div class="home">
+    <div id="diagramContainer">
+        <div id="item_left" class="item"></div>
+        <div id="item_right" class="item" style="margin-left:50px;"></div>
+    </div>
 
-  <h1 class="page-heading">Posts</h1>
+    <p><a href="http://www.freedevelopertutorials.com/jsplumb-tutorial/introduction/">Visit the full jsPlumb-Tutorial</a> to learn it and see many more interesting examples.</p>
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+    
+    <script>
+        jsPlumb.ready(function() {
+            jsPlumb.connect({
+                source:"item_left",
+                target:"item_right",
+                endpoint:"Rectangle"
+            });
+        });
+    </script> 
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
-
-</div>
+</body>
+</html>
