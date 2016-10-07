@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="">
+<html>
 <head>
     <style>
         #diagramContainer {
@@ -9,34 +9,164 @@
         }
         
         .item {
+            position: absolute;
             height:80px; width: 80px;
             border: 1px solid blue;
             float: left;
         }
+        
+        .selected {
+            border: 2px solid blue;
+        }
+        
+        .port {
+        background-color: #000000;
+        width: 40px;
+        height: 40px;
+        position: absolute;
+        }
+        
     </style>
 </head>
 <body>
-
+    <button onclick="port('and')">AND</button>
     <div id="diagramContainer">
+        <div id="rubberband" style="border:1px solid green;display:none;"></div>
+        
         <div id="item_left" class="item"></div>
-        <div id="item_right" class="item" style="margin-left:50px;"></div>
+        <div id="item_right" class="item" style="left:150px;"></div>
+        
     </div>
+
+    <p>Click (left mousebutton) and drag to select items with the rubberband. You can even drag multiple items at once!</p>
 
     <p><a href="http://www.freedevelopertutorials.com/jsplumb-tutorial/introduction/">Visit the full jsPlumb-Tutorial</a> to learn it and see many more interesting examples.</p>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all-min.js"></script>
+    <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
     
     <script>
+        var startPoint = {};
+        var rubberbandDrawingActive = false;
+        var selection = 'and';
+        var diagram = $('#diagramContainer');
+        var port_and = '<div id="and'+generatedid()+'" class="port and"></div>';
+        var increasingnumber = 0;
+        var firstInstance = jsPlumb.getInstance();
+
+        function generatedid(){
+            increasingnumber = increasingnumber+1;
+            return (increasingnumber-1).toString();
+            
+        }
+            
+        function diagramContainer_MouseDown(event) {
+            startPoint.x = event.pageX;         
+            startPoint.y = event.pageY;
+            
+            $("#rubberband").css({top:startPoint.y, left:startPoint.x, height:1, width:1, position:'absolute'});
+            $("#rubberband").show();
+        }
+        
+        function diagramContainer_MouseMove(event) {
+            if($("#rubberband").is(":visible") !== true) { return; }
+            
+            var t = (event.pageY > startPoint.y) ? startPoint.y : event.pageY;
+            var l = (event.pageX >= startPoint.x) ? startPoint.x : event.pageX;
+            
+            wcalc = event.pageX - startPoint.x;
+            var w = (event.pageX > startPoint.x) ? wcalc : (wcalc * -1); 
+            
+            hcalc = event.pageY - startPoint.y;
+            var h = (event.pageY > startPoint.y) ? hcalc : (hcalc * -1); 
+            
+            $("#rubberband").css({top:t, left:l, height:h, width:w, position:'absolute'});
+        }
+        
+        function diagramContainer_MouseUp(event) {
+            diagramContainer_FindSelectedItem();
+            $("#rubberband").hide();
+        }
+        
+        function diagramContainer_FindSelectedItem() {
+            if($("#rubberband").is(":visible") !== true) { return; }
+            
+            var rubberbandOffset = getTopLeftOffset($("#rubberband"));
+
+            $(".item").each(function() {
+                var itemOffset = getTopLeftOffset($(this));
+                if( itemOffset.top > rubberbandOffset.top &&
+                    itemOffset.left > rubberbandOffset.left &&
+                    itemOffset.right < rubberbandOffset.right &&
+                    itemOffset.bottom < rubberbandOffset.bottom) {
+                    $(this).addClass("selected");
+
+                    var elementid = $(this).attr('id');
+                    jsPlumb.addToDragSelection(elementid);
+                }
+            });
+        }
+        
+        function diagramContainer_dblClick(event) {
+            var parentOffset = diagram.parent().offset(); 
+           //or $(this).offset(); if you really just want the current element's offset
+           var relX = event.pageX - parentOffset.left;
+           var relY = event.pageY - parentOffset.top;
+                    
+            
+            switch(selection) {
+            case 'and':
+                diagram.append(port_and).css({
+            left: relX,
+            top: relY
+            });
+            JsPlumb.draggable($(".and"));
+                break;
+                
+
+}
+            
+        }
+        
+        function getTopLeftOffset(element) {
+            var elementDimension = {};
+            elementDimension.left = element.offset().left;
+            elementDimension.top =  element.offset().top;
+            elementDimension.right = elementDimension.left + element.outerWidth();
+            elementDimension.bottom = elementDimension.top + element.outerHeight();
+            
+            return elementDimension;
+        }
+        
+        function diagramContainer_Click(event) {
+            if(startPoint.x === event.pageX && startPoint.y === event.pageY)
+            {
+                jsPlumb.clearDragSelection();
+                $(".item").each(function() {
+                    $(this).removeClass("selected");
+                });
+            }
+        }
+        
         jsPlumb.ready(function() {
+            diagram.mousedown(diagramContainer_MouseDown);
+            $("#diagramContainer").mousemove(diagramContainer_MouseMove);
+            $("#diagramContainer").mouseup(diagramContainer_MouseUp);
+            $("#diagramContainer").click(diagramContainer_Click);
+            diagram.dblclick(diagramContainer_dblClick);
+
+            
             jsPlumb.connect({
                 source:"item_left",
                 target:"item_right",
                 endpoint:"Rectangle"
             });
-                                     
-            jsPlumb.draggable($('.item'));
+
+            jsPlumb.draggable($(".item"));
+            jsPlumb.draggable($(".port"));
+
+
         });
     </script> 
 
