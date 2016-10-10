@@ -50,6 +50,16 @@
         var increasingnumber = 0;
         var tempnum = 0;
         var firstInstance = jsPlumb.getInstance();
+        var commonsource = {
+            isSource:true,
+            isTarget:false,
+            connector: ["Straight"]
+            };
+        var commontarget = {
+            isSource:false,
+            isTarget:true,
+            connector: ["Straight"]
+            };        
         
         function generatedid(){
             increasingnumber = increasingnumber+1;
@@ -137,14 +147,18 @@
             top: relY
             });
             jsPlumb.draggable($(".port"));
+            
             jsPlumb.addEndpoint($(".port"), {
-              endpoint:"Dot",
-              anchor:[ "TopLeft", { shape:"Circle" } ]
-            });
+                anchors:["Right"]
+            }, commonsource);
+            
             jsPlumb.addEndpoint($(".port"), {
-              endpoint:"Dot",
-              anchor:[ "BottomLeft", { shape:"Circle" } ]
-            });
+                anchors:["BottomLeft"]
+            }, commontarget);
+            
+            jsPlumb.addEndpoint($(".port"), {
+                anchors:["TopLeft"]
+            }, commontarget);
             
                 break;
             }
