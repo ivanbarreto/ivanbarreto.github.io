@@ -131,13 +131,21 @@
             
             switch(selection) {
             case 'and':
-                alert(diagram);
                 var port_and = '<div id="and'+generatedid(increasingnumber)+'" class="port and"></div>';
                 diagram.append(port_and).css({
             left: relX,
             top: relY
             });
             jsPlumb.draggable($(".port"));
+            jsPlumb.addEndpoint($(".port"), {
+              endpoint:"Dot",
+              anchor:[ "TopLeft", { shape:"Circle" } ]
+            });
+            jsPlumb.addEndpoint($(".port"), {
+              endpoint:"Dot",
+              anchor:[ "BottomLeft", { shape:"Circle" } ]
+            });
+            
                 break;
             }
             
