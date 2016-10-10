@@ -18,6 +18,12 @@
         .selected {
             border: 2px solid blue;
         }
+        
+        .port {
+            position: absolute;
+            height:40px; width: 40px;
+            border: 1px solid black;
+        }
     </style>
 </head>
 <body>
@@ -41,13 +47,12 @@
         var rubberbandDrawingActive = false;
         var selection = 'and';
         var diagram = $('#diagramContainer');
-        var port_and = '<div id="and'+generatedid()+'" class="port and"></div>';
         var increasingnumber = 0;
         var firstInstance = jsPlumb.getInstance();
         
-        function generatedid(){
-            increasingnumber = increasingnumber+1;
-            return (increasingnumber-1).toString();
+        function generatedid(a){
+            a = a+1;
+            return (a-1).toString();
             
         }
         
@@ -83,7 +88,6 @@
             if($("#rubberband").is(":visible") !== true) { return; }
             
             var rubberbandOffset = getTopLeftOffset($("#rubberband"));
-
             $(".item").each(function() {
                 var itemOffset = getTopLeftOffset($(this));
                 if( itemOffset.top > rubberbandOffset.top &&
@@ -91,7 +95,6 @@
                     itemOffset.right < rubberbandOffset.right &&
                     itemOffset.bottom < rubberbandOffset.bottom) {
                     $(this).addClass("selected");
-
                     var elementid = $(this).attr('id');
                     jsPlumb.addToDragSelection(elementid);
                 }
@@ -127,12 +130,13 @@
             
             switch(selection) {
             case 'and':
-                alert("Your book is overdue.");  
+                alert(diagram);
+                var port_and = '<div id="and'+generatedid(increasingnumber)+'" class="port and"></div>';
                 diagram.append(port_and).css({
             left: relX,
             top: relY
             });
-            JsPlumb.draggable($(".and"));
+            jsPlumb.draggable($("#and0"));
                 break;
             }
             
@@ -149,7 +153,6 @@
                 target:"item_right",
                 endpoint:"Rectangle"
             });
-
             jsPlumb.draggable("item_left");
             jsPlumb.draggable("item_right");
         });
