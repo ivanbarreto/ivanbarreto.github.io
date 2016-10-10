@@ -18,17 +18,10 @@
         .selected {
             border: 2px solid blue;
         }
-        
-        .port {
-        background-color: #000000;
-        width: 40px;
-        height: 40px;
-        position: absolute;
-        }
-        
     </style>
 </head>
 <body>
+
     <button onclick="port('and')">AND</button>
     <div id="diagramContainer">
         <div id="rubberband" style="border:1px solid green;display:none;"></div>
@@ -47,6 +40,8 @@
     <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
     
     <script>
+        jsPlumb.ready(function() {
+        
         var startPoint = {};
         var rubberbandDrawingActive = false;
         var selection = 'and';
@@ -54,13 +49,13 @@
         var port_and = '<div id="and'+generatedid()+'" class="port and"></div>';
         var increasingnumber = 0;
         var firstInstance = jsPlumb.getInstance();
-
+        
         function generatedid(){
             increasingnumber = increasingnumber+1;
             return (increasingnumber-1).toString();
             
         }
-            
+        
         function diagramContainer_MouseDown(event) {
             startPoint.x = event.pageX;         
             startPoint.y = event.pageY;
@@ -108,27 +103,6 @@
             });
         }
         
-        function diagramContainer_dblClick(event) {
-            var parentOffset = diagram.parent().offset(); 
-           //or $(this).offset(); if you really just want the current element's offset
-           var relX = event.pageX - parentOffset.left;
-           var relY = event.pageY - parentOffset.top;
-                    
-            
-            switch(selection) {
-            case 'and':
-                diagram.append(port_and).css({
-            left: relX,
-            top: relY
-            });
-            JsPlumb.draggable($(".and"));
-                break;
-                
-
-}
-            
-        }
-        
         function getTopLeftOffset(element) {
             var elementDimension = {};
             elementDimension.left = element.offset().left;
@@ -149,13 +123,31 @@
             }
         }
         
-        jsPlumb.ready(function() {
-            diagram.mousedown(diagramContainer_MouseDown);
+        function diagramContainer_dblClick(event) {
+            var parentOffset = diagram.parent().offset(); 
+           //or $(this).offset(); if you really just want the current element's offset
+           var relX = event.pageX - parentOffset.left;
+           var relY = event.pageY - parentOffset.top;
+                  
+            
+            switch(selection) {
+            case 'and':
+                alert("Your book is overdue.");  
+                diagram.append(port_and).css({
+            left: relX,
+            top: relY
+            });
+            JsPlumb.draggable($(".and"));
+                break;
+            }
+            
+        }
+            
+            $("#diagramContainer").mousedown(diagramContainer_MouseDown);
             $("#diagramContainer").mousemove(diagramContainer_MouseMove);
             $("#diagramContainer").mouseup(diagramContainer_MouseUp);
             $("#diagramContainer").click(diagramContainer_Click);
-            diagram.dblclick(diagramContainer_dblClick);
-
+            $("#diagramContainer").dblclick(diagramContainer_dblClick);
             
             jsPlumb.connect({
                 source:"item_left",
@@ -163,10 +155,8 @@
                 endpoint:"Rectangle"
             });
 
-            jsPlumb.draggable($(".item"));
-            jsPlumb.draggable($(".port"));
-
-
+            jsPlumb.draggable("item_left");
+            jsPlumb.draggable("item_right");
         });
     </script> 
 
