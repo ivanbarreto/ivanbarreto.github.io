@@ -31,12 +31,6 @@
     <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
     
     <script>
-
-        function select(a){
-            selection = a;
-            alert(selection);
-        }
-
         jsPlumb.ready(function() {
         
         var startPoint = {};
@@ -66,6 +60,11 @@
             elements.led = 0;
             elements.power = 0;
         
+
+        function select(a){
+            selection = a;
+            alert(selection);
+        }
 
 
         function generatedid(){
@@ -222,36 +221,7 @@
         }
         
         function diagramContainer_dblClick(event) {
-            var parentOffset = diagram.parent().offset(); 
-           //or $(this).offset(); if you really just want the current element's offset
-           var relX = event.pageX - parentOffset.left;
-           var relY = event.pageY - parentOffset.top;
-                  
-            
-            switch(selection) {
-            case 'and':
-                var port_and = '<div id="and'+generatedid(increasingnumber)+'" class="port and"></div>';
-                diagram.append(port_and).css({
-            left: relX,
-            top: relY
-            });
-            jsPlumb.draggable($(".port"));
-            
-            jsPlumb.addEndpoint($(".port"), {
-                anchors:["Right"]
-            }, commonsource);
-            
-            jsPlumb.addEndpoint($(".port"), {
-                anchors:["BottomLeft"]
-            }, commontarget);
-            
-            jsPlumb.addEndpoint($(".port"), {
-                anchors:["TopLeft"]
-            }, commontarget);
-            
-                break;
-            }
-            
+            createelement();
         }
             
             $("#diagramContainer").mousedown(diagramContainer_MouseDown);
@@ -259,14 +229,6 @@
             $("#diagramContainer").mouseup(diagramContainer_MouseUp);
             $("#diagramContainer").click(diagramContainer_Click);
             $("#diagramContainer").dblclick(diagramContainer_dblClick);
-            
-            jsPlumb.connect({
-                source:"item_left",
-                target:"item_right",
-                endpoint:"Rectangle"
-            });
-            jsPlumb.draggable("item_left");
-            jsPlumb.draggable("item_right");
         });
     </script> 
 
