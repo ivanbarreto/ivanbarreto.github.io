@@ -31,11 +31,18 @@
     <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
     
     <script>
+
+        var selection = 'and';
+        function select(a){
+            selection = a;
+            alert(selection);
+        }
+
+
         jsPlumb.ready(function() {
         
         var startPoint = {};
         var rubberbandDrawingActive = false;
-        var selection = 'and';
         var diagram = $('#diagramContainer');
         var tempnum = 0;
         var firstInstance = jsPlumb.getInstance();
