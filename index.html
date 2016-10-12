@@ -28,7 +28,15 @@
 </head>
 <body>
 
-    <button onclick="port('and')">AND</button>
+    <button onclick="select('and')">AND</button>
+    <button onclick="select('nand')">NAND</button>
+    <button onclick="select('not')">NOT</button>
+    <button onclick="select('or')">OR</button>
+    <button onclick="select('nor')">NOR</button>
+    <button onclick="select('xor')">XOR</button>
+    <button onclick="select('xnor')">XNOR</button>
+    <button onclick="select('led')">LED</button>
+    <button onclick="select('power')">POWER</button>
     <div id="diagramContainer">
         <div id="rubberband" style="border:1px solid green;display:none;"></div>
         
@@ -47,7 +55,6 @@
         var rubberbandDrawingActive = false;
         var selection = 'and';
         var diagram = $('#diagramContainer');
-        var increasingnumber = 0;
         var tempnum = 0;
         var firstInstance = jsPlumb.getInstance();
         var commonsource = {
@@ -59,14 +66,111 @@
             isSource:false,
             isTarget:true,
             connector: ["Straight"]
-            };        
+            };
+        var elements = {}
+            elements.and = 0;
+            elements.nand = 0;
+            elements.not = 0;
+            elements.or = 0;
+            elements.nor = 0;
+            elements.xor = 0;
+            elements.xnor = 0;
+            elements.led = 0;
+            elements.power = 0;
         
-        function generatedid(){
-            increasingnumber = increasingnumber+1;
-            tempnum = increasingnumber -1;
-            return (tempnum).toString();    
+        function select(a){
+            selection = a;
+            alert(selection);
         }
+
+        function generatedid(){
+            var tempnum = 0;
+            switch(selection) {
+                case 'and': 
+                alert(elements.and);
+                elements.and = elements.and+1;
+                alert(elements.and);
+                tempnum = elements.and-1;
+                break;
+                case 'nand':
+                elements.nand = elements.nand+1;
+                tempnum = elements.nand-1;
+                break;
+                case 'not':
+                elements.not = elements.not+1;
+                tempnum = elements.not-1;
+                break;
+                case 'or':
+                elements.or = elements.or+1;
+                tempnum = elements.or-1;
+                break;
+                case 'nor':
+                elements.nor = elements.nor+1;
+                tempnum = elements.nor-1;
+                break;
+                case 'xor':
+                elements.xor = elements.xor+1;
+                tempnum = elements.xor-1;
+                break;
+                case 'xnor':
+                elements.xnor = elements.xnor+1;
+                tempnum = elements.xnor-1;
+                break;
+                case 'led':
+                elements.led = elements.led+1;
+                tempnum = elements.led-1;
+                break;
+                case 'power':
+                elements.power = elements.power+1;
+                tempnum = elements.power-1;
+                break;     
+                }
+            return (tempnum).toString();   
+        }
+
         
+        function createelement(){
+            var parentOffset = diagram.parent().offset(); 
+           //or $(this).offset(); if you really just want the current element's offset
+            var relX = event.pageX; //- parentOffset.left;
+            var relY = event.pageY; //- parentOffset.top;
+            var id = selection+generatedid();
+            var port = '<div id="'+id+'" class="'+selection+'"></div>';
+                diagram.append(port).css({
+                left: relX,
+                top: relY
+            });
+            jsPlumb.draggable($("#"+id));
+            if(selection == 'and' || 
+                selection == 'nand' || 
+                selection == 'or' || 
+                selection == 'nor' || 
+                selection == 'xor' || 
+                selection == 'xnor'){
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Right"]
+                }, commonsource);
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["BottomLeft"]
+                }, commontarget);
+                
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["TopLeft"]
+                }, commontarget);   
+            }
+            else if(selection == 'led'){
+                jsPlumb.addEndpoint($("#"+id), {
+                anchors:["Left"]
+                }, commontarget);    
+            }
+            else if(selection == 'power'){
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Right"]
+                }, commonsource);   
+            }
+
+        }
+
         function diagramContainer_MouseDown(event) {
             startPoint.x = event.pageX;         
             startPoint.y = event.pageY;
