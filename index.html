@@ -26,25 +26,7 @@
         }
     </style>
 </head>
-<body>
-
-    <button onclick="select('and')">AND</button>
-    <button onclick="select('nand')">NAND</button>
-    <button onclick="select('not')">NOT</button>
-    <button onclick="select('or')">OR</button>
-    <button onclick="select('nor')">NOR</button>
-    <button onclick="select('xor')">XOR</button>
-    <button onclick="select('xnor')">XNOR</button>
-    <button onclick="select('led')">LED</button>
-    <button onclick="select('power')">POWER</button>
-    <div id="diagramContainer">
-        <div id="rubberband" style="border:1px solid green;display:none;"></div>
-        
-        <div id="item_left" class="item"></div>
-        <div id="item_right" class="item" style="left:150px;"></div>
-        
-    </div>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
     <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
     
@@ -287,6 +269,26 @@
             jsPlumb.draggable("item_right");
         });
     </script> 
+
+
+<body>
+
+    <button onclick="select('and')">AND</button>
+    <button onclick="select('nand')">NAND</button>
+    <button onclick="select('not')">NOT</button>
+    <button onclick="select('or')">OR</button>
+    <button onclick="select('nor')">NOR</button>
+    <button onclick="select('xor')">XOR</button>
+    <button onclick="select('xnor')">XNOR</button>
+    <button onclick="select('led')">LED</button>
+    <button onclick="select('power')">POWER</button>
+    <div id="diagramContainer">
+        <div id="rubberband" style="border:1px solid green;display:none;"></div>
+        
+        <div id="item_left" class="item"></div>
+        <div id="item_right" class="item" style="left:150px;"></div>
+        
+    </div>
 
 </body>
 </html>
