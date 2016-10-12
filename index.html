@@ -49,6 +49,12 @@
     <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
     
     <script>
+
+        function select(a){
+            selection = a;
+            alert(selection);
+        }
+
         jsPlumb.ready(function() {
         
         var startPoint = {};
@@ -78,10 +84,7 @@
             elements.led = 0;
             elements.power = 0;
         
-        function select(a){
-            selection = a;
-            alert(selection);
-        }
+
 
         function generatedid(){
             var tempnum = 0;
