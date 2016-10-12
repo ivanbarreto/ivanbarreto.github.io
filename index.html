@@ -8,34 +8,28 @@
             border: 1px solid gray;
         }
         
-        .item {
-            position: absolute;
-            height:80px; width: 80px;
-            border: 1px solid blue;
-            float: left;
-        }
-        
         .selected {
             border: 2px solid blue;
         }
-        
+
         .port {
             position: absolute;
-            height:40px; width: 40px;
+            height:80px; width: 80px;
             border: 1px solid black;
+            float: left;
         }
+
     </style>
 </head>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <script src="http://www.freedevelopertutorials.com/statics/dom.jsPlumb-1.7.5-min.js"></script>
+<script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jsPlumb-2.1.7.js"></script>
     
     <script>
 
         var selection = 'and';
         function select(a){
             selection = a;
-            alert(selection);
         }
 
 
@@ -66,21 +60,13 @@
             elements.xnor = 0;
             elements.led = 0;
             elements.power = 0;
-        
-
-        function select(a){
-            selection = a;
-            alert(selection);
-        }
 
 
         function generatedid(){
             var tempnum = 0;
             switch(selection) {
                 case 'and': 
-                alert(elements.and);
                 elements.and = elements.and+1;
-                alert(elements.and);
                 tempnum = elements.and-1;
                 break;
                 case 'nand':
@@ -120,16 +106,12 @@
         }
 
         
-        function createelement(){
-            var parentOffset = diagram.parent().offset(); 
-           //or $(this).offset(); if you really just want the current element's offset
-            var relX = event.pageX; //- parentOffset.left;
-            var relY = event.pageY; //- parentOffset.top;
+        function createelement(x,y){
             var id = selection+generatedid();
-            var port = '<div id="'+id+'" class="'+selection+'"></div>';
+            var port = '<div id="'+id+'" class="'+selection+' port"></div>';
                 diagram.append(port).css({
-                left: relX,
-                top: relY
+                left: x,
+                top: y
             });
             jsPlumb.draggable($("#"+id));
             if(selection == 'and' || 
@@ -138,6 +120,7 @@
                 selection == 'nor' || 
                 selection == 'xor' || 
                 selection == 'xnor'){
+                //$("#"+id).addClass("port");
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
                 }, commonsource);
@@ -149,9 +132,18 @@
                     anchors:["TopLeft"]
                 }, commontarget);   
             }
+            else if(selection == 'not'){
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Right"]
+                }, commonsource); 
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Left"]
+                }, commontarget);      
+            }
+            
             else if(selection == 'led'){
                 jsPlumb.addEndpoint($("#"+id), {
-                anchors:["Left"]
+                    anchors:["Left"]
                 }, commontarget);    
             }
             else if(selection == 'power'){
@@ -228,7 +220,9 @@
         }
         
         function diagramContainer_dblClick(event) {
-            createelement();
+            var x = event.pageX;
+            var y = event.pageY;
+            createelement(x,y);
         }
             
             $("#diagramContainer").mousedown(diagramContainer_MouseDown);
@@ -252,10 +246,7 @@
     <button onclick="select('led')">LED</button>
     <button onclick="select('power')">POWER</button>
     <div id="diagramContainer">
-        <div id="rubberband" style="border:1px solid green;display:none;"></div>
-        
-        <div id="item_left" class="item"></div>
-        <div id="item_right" class="item" style="left:150px;"></div>
+        <div id="rubberband" style="border:1px solid green;display:none;"></div>     
         
     </div>
 
