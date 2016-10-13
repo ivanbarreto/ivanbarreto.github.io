@@ -19,6 +19,38 @@
             float: left;
         }
 
+        .led {
+            border-radius: 50%;
+            position: absolute;
+            width: 80px; height: 80px;
+            background: solid red;
+            border: 5px solid black;
+            float: left;
+        }
+
+        .power {
+            position: absolute;
+            height:80px; width: 80px;
+            float: left;
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            overflow:auto;
+            background-color: solid red;
+            border: 5px solid black;
+            font-family: sans-serif;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .powertext {
+            display: table-cell;
+            vertical-align:middle;
+            text-align:center;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
     </style>
 </head>
 <script src="js/jquery-3.1.1.min.js"></script>
@@ -147,11 +179,25 @@
                 }, commontarget);    
             }
             else if(selection == 'power'){
+                ($("#"+id)).text("OFF");
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
-                }, commonsource);   
+                }, commonsource);
+                ($( "#"+id)).mousedown(function() {
+                    startPoint.x = event.pageX;         
+                    startPoint.y = event.pageY;
+                    ($("#"+id)).mouseup(function() {
+                        if(startPoint.x === event.pageX && startPoint.y === event.pageY){
+                            if(($("#"+id)).text() == "OFF"){
+                                ($("#"+id)).text("ON");
+                            }
+                            else if(($("#"+id)).text() == "ON"){
+                                ($("#"+id)).text("OFF");
+                            }
+                        } 
+                    });
+                });
             }
-
         }
 
         function diagramContainer_MouseDown(event) {
