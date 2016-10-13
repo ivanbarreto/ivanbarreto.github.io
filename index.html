@@ -183,10 +183,12 @@
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
                 }, commonsource);
+                var startPoint = [];
                 ($( "#"+id)).mousedown(function() {
                     startPoint.x = event.pageX;         
                     startPoint.y = event.pageY;
-                    ($("#"+id)).mouseup(function() {
+                });
+                ($("#"+id)).mouseup(function() {
                         if(startPoint.x === event.pageX && startPoint.y === event.pageY){
                             if(($("#"+id)).text() == "OFF"){
                                 ($("#"+id)).text("ON");
@@ -196,9 +198,8 @@
                             }
                         } 
                     });
-                });
+                };
             }
-        }
 
         function diagramContainer_MouseDown(event) {
             startPoint.x = event.pageX;         
