@@ -2,9 +2,16 @@
 <html>
 <head>
     <style>
+        #mastercontainer {
+            display: inline-block;
+            border: 1px solid black;
+            background-color: solid gray;
+
+        }
+
         #diagramContainer {
             padding: 20px;
-            width:80%; height: 200px;
+            width:990px; height: 600px;
             border: 1px solid gray;
         }
         
@@ -293,11 +300,12 @@
             targetconnection = jsPlumb.getConnections({ target:info.targetId}); //pega conexões do target
             //console.log(sourceconnection);
             console.log(targetconnection);
-            /*if($("#"+info.targetId).hasClass("and"){
-                
-                $('#mydiv').data('myval',20); //setter
+            console.log(targetconnection.length);
+            if($("#"+info.targetId).hasClass("and"){
+                ($("#"+id)).attr("data-value", false);
 
-            }*/
+
+            }
 
 
             //alert("oi");
@@ -330,20 +338,20 @@
 
 
 <body>
-
-    <button class="buttonalt" id="and" onclick="select('and')">AND</button>
-    <button class="button" id="nand" onclick="select('nand')">NAND</button>
-    <button class="button" id="not" onclick="select('not')">NOT</button>
-    <button class="button" id="or" onclick="select('or')">OR</button>
-    <button class="button" id="nor" onclick="select('nor')">NOR</button>
-    <button class="button" id="xor" onclick="select('xor')">XOR</button>
-    <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
-    <button class="button" id="led" onclick="select('led')">LED</button>
-    <button class="button" id="power" onclick="select('power')">POWER</button>
-    <div id="diagramContainer">
-        <div id="rubberband" style="border:1px solid green;display:none;"></div>     
-        
+    <div id="mastercontainer">
+        <button class="buttonalt" id="and" onclick="select('and')">AND</button>
+        <button class="button" id="nand" onclick="select('nand')">NAND</button>
+        <button class="button" id="not" onclick="select('not')">NOT</button>
+        <button class="button" id="or" onclick="select('or')">OR</button>
+        <button class="button" id="nor" onclick="select('nor')">NOR</button>
+        <button class="button" id="xor" onclick="select('xor')">XOR</button>
+        <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
+        <button class="button" id="led" onclick="select('led')">LED</button>
+        <button class="button" id="power" onclick="select('power')">POWER</button>
+        <div id="diagramContainer">
+            <div id="rubberband" style="border:1px solid green;display:none;"></div>     
+            
+        </div>
     </div>
-
 </body>
 </html>
