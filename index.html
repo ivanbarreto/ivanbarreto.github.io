@@ -11,14 +11,12 @@
         .selected {
             border: 2px solid blue;
         }
-
         .port {
             position: absolute;
             height:80px; width: 80px;
             border: 1px solid black;
             float: left;
         }
-
         .led {
             border-radius: 50%;
             position: absolute;
@@ -27,7 +25,6 @@
             border: 5px solid black;
             float: left;
         }
-
         .power {
             position: absolute;
             height:80px; width: 80px;
@@ -35,7 +32,6 @@
             background-color: solid red;
             border: 5px solid black;
         }
-
         .button {
             background-color: lightgrey;
             border: 2px solid black;
@@ -60,8 +56,6 @@
             margin: 4px 2px;
             cursor: pointer;
         }
-
-
     </style>
 </head>
 <script src="js/jquery-3.1.1.min.js"></script>
@@ -69,7 +63,6 @@
     <script src="js/jsPlumb-2.1.7.js"></script>
     
     <script>
-
         var selection = 'and';
         function select(a){
             selection = a;
@@ -78,8 +71,6 @@
             $("#"+selection).removeClass("button");
             $("#"+selection).addClass("buttonalt");
             }
-
-
         jsPlumb.ready(function() {
         
         var startPoint = {};
@@ -107,8 +98,6 @@
             elements.xnor = 0;
             elements.led = 0;
             elements.power = 0;
-
-
         function generatedid(){
             var tempnum = 0;
             switch(selection) {
@@ -151,19 +140,18 @@
                 }
             return (tempnum).toString();   
         }
-
         
         function createelement(x,y){
             var id = selection+generatedid();
             if(selection == 'power' || selection == 'led'){
-            var port = '<div id="'+id+'" class="'+selection+'"></div>';
+            var port = '<div id="'+id+'" data-value="false" class="'+selection+'"></div>';
                 diagram.append(port).css({
                 left: x,
                 top: y
             });
             }
             else{
-                var port = '<div id="'+id+'" class="'+selection+' port"></div>';
+                var port = '<div id="'+id+'" data-value="false" class="'+selection+' port"></div>';
                 diagram.append(port).css({
                 left: x,
                 top: y
@@ -216,15 +204,17 @@
                         if(startPoint.x === event.pageX && startPoint.y === event.pageY){
                             if(($("#"+id)).text() == "OFF"){
                                 ($("#"+id)).text("ON");
+                                ($("#"+id)).attr("data-value", true);
                             }
                             else if(($("#"+id)).text() == "ON"){
                                 ($("#"+id)).text("OFF");
+                                ($("#"+id)).attr("data-value", false);
+
                             }
                         } 
                     });
                 };
             }
-
         function diagramContainer_MouseDown(event) {
             startPoint.x = event.pageX;         
             startPoint.y = event.pageY;
@@ -295,8 +285,24 @@
             var y = event.pageY;
             createelement(x,y);
         }
-
+        
         jsPlumb.bind("connection", function (info, originalEvent) {
+            //sourceconnection =[];
+            //sourceconnection = jsPlumb.getConnections({ source:info.sourceId }); //pega conexões de source
+            targetconnection = [];
+            targetconnection = jsPlumb.getConnections({ target:info.targetId}); //pega conexões do target
+            //console.log(sourceconnection);
+            console.log(targetconnection);
+            /*if($("#"+info.targetId).hasClass("and"){
+                
+                $('#mydiv').data('myval',20); //setter
+
+            }*/
+
+
+            //alert("oi");
+
+
 
         /*alert(info.sourceId);
         alert(info.targetId);
@@ -306,7 +312,13 @@
         alert(info.targetEndpoint);
         alert(info.connection);
         */
-        }); 
+        });
+
+        /*function updatenodes(){
+
+
+
+        }*/
             
             $("#diagramContainer").mousedown(diagramContainer_MouseDown);
             $("#diagramContainer").mousemove(diagramContainer_MouseMove);
