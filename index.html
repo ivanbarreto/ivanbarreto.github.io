@@ -32,24 +32,35 @@
             position: absolute;
             height:80px; width: 80px;
             float: left;
-            display: table-cell;
-            text-align: center;
-            vertical-align: middle;
-            overflow:auto;
             background-color: solid red;
             border: 5px solid black;
-            font-family: sans-serif;
-            text-decoration: none;
-            font-weight: bold;
         }
 
-        .powertext {
-            display: table-cell;
-            vertical-align:middle;
-            text-align:center;
-            color: #FFFFFF;
+        .button {
+            background-color: lightgrey;
+            border: 2px solid black;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
             text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
         }
+        .buttonalt {
+            background-color: lightblue;
+            border: 2px solid black;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
 
     </style>
 </head>
@@ -62,7 +73,11 @@
         var selection = 'and';
         function select(a){
             selection = a;
-        }
+            $(".buttonalt").addClass("button");
+            $(".buttonalt").removeClass("buttonalt");
+            $("#"+selection).removeClass("button");
+            $("#"+selection).addClass("buttonalt");
+            }
 
 
         jsPlumb.ready(function() {
@@ -140,11 +155,20 @@
         
         function createelement(x,y){
             var id = selection+generatedid();
-            var port = '<div id="'+id+'" class="'+selection+' port"></div>';
+            if(selection == 'power' || selection == 'led'){
+            var port = '<div id="'+id+'" class="'+selection+'"></div>';
                 diagram.append(port).css({
                 left: x,
                 top: y
             });
+            }
+            else{
+                var port = '<div id="'+id+'" class="'+selection+' port"></div>';
+                diagram.append(port).css({
+                left: x,
+                top: y
+            });
+            } 
             jsPlumb.draggable($("#"+id));
             if(selection == 'and' || 
                 selection == 'nand' || 
@@ -271,6 +295,18 @@
             var y = event.pageY;
             createelement(x,y);
         }
+
+        jsPlumb.bind("connection", function (info, originalEvent) {
+
+        /*alert(info.sourceId);
+        alert(info.targetId);
+        alert(info.source);
+        alert(info.target);
+        alert(info.sourceEndpoint);
+        alert(info.targetEndpoint);
+        alert(info.connection);
+        */
+        }); 
             
             $("#diagramContainer").mousedown(diagramContainer_MouseDown);
             $("#diagramContainer").mousemove(diagramContainer_MouseMove);
@@ -283,15 +319,15 @@
 
 <body>
 
-    <button onclick="select('and')">AND</button>
-    <button onclick="select('nand')">NAND</button>
-    <button onclick="select('not')">NOT</button>
-    <button onclick="select('or')">OR</button>
-    <button onclick="select('nor')">NOR</button>
-    <button onclick="select('xor')">XOR</button>
-    <button onclick="select('xnor')">XNOR</button>
-    <button onclick="select('led')">LED</button>
-    <button onclick="select('power')">POWER</button>
+    <button class="buttonalt" id="and" onclick="select('and')">AND</button>
+    <button class="button" id="nand" onclick="select('nand')">NAND</button>
+    <button class="button" id="not" onclick="select('not')">NOT</button>
+    <button class="button" id="or" onclick="select('or')">OR</button>
+    <button class="button" id="nor" onclick="select('nor')">NOR</button>
+    <button class="button" id="xor" onclick="select('xor')">XOR</button>
+    <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
+    <button class="button" id="led" onclick="select('led')">LED</button>
+    <button class="button" id="power" onclick="select('power')">POWER</button>
     <div id="diagramContainer">
         <div id="rubberband" style="border:1px solid green;display:none;"></div>     
         
