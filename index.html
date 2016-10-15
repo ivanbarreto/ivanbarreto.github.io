@@ -16,7 +16,7 @@
         }
         
         .selected {
-            border: 2px solid blue;
+            border: 2px solid red;
         }
         .port {
             position: absolute;
@@ -151,14 +151,14 @@
         function createelement(x,y){
             var id = selection+generatedid();
             if(selection == 'power' || selection == 'led'){
-            var port = '<div id="'+id+'" data-value="false" class="'+selection+'"></div>';
+            var port = '<div id="'+id+'" data-value="false" class="'+selection+' item"></div>';
                 diagram.append(port).css({
                 left: x,
                 top: y
             });
             }
             else{
-                var port = '<div id="'+id+'" data-value="false" class="'+selection+' port"></div>';
+                var port = '<div id="'+id+'" data-value="false" class="'+selection+' item port"></div>';
                 diagram.append(port).css({
                 left: x,
                 top: y
@@ -217,6 +217,10 @@
                                 ($("#"+id)).text("OFF");
                                 ($("#"+id)).attr("data-value", false);
 
+                            }
+                            if(jsPlumb.getConnections({ source:id }).length == 1){
+                                var next = jsPlumb.getConnections({ source:id});
+                                updater(next[0].targetId); //falta parâmetros
                             }
                         } 
                     });
@@ -292,24 +296,112 @@
             var y = event.pageY;
             createelement(x,y);
         }
+
+        function solver(name, valuesources){
+            var normid = name.replace(/[0-9]/g, '');
+            console.log("valores recebidos pelo solver "+ normid+ " "+valuesources[0]+" "+valuesources[1]);
+            switch(normid) {
+                case 'and':
+                //alert("entrei pelo menos"); 
+                if (valuesources[0] == 'true' && valuesources[1] == 'true'){
+                    //alert("deu certo");
+                    return true;
+                    }
+                else {return false;}
+                break;
+                case 'nand':
+                if (valuesources[0] == 'true' && valuesources[1] == 'true'){
+                    return false;
+                    }
+                else {return true;}
+                break;
+                case 'not':
+                if (valuesources[0] == false){
+                    return true;
+                }
+                else{return false;}
+                break;
+                case 'or':
+                if (valuesources[0] == 'false' && valuesources[1] == 'false'){
+                    return false;
+                }
+                else{return true;}
+                break;
+                case 'nor':
+                if (valuesources[0] == 'false' && valuesources[1] == 'false'){
+                    return true;
+                }
+                else{return false;}
+                break;
+                case 'xor':
+                if (valuesources[0] == valuesources[1]){
+                    return false;
+                }
+                else{return true;}
+                break;
+                case 'xnor':
+                if (valuesources[0] == valuesources[1]){
+                    return true;
+                }
+                else{return false;}
+                break; 
+                } 
+        }
         
-        jsPlumb.bind("connection", function (info, originalEvent) {
-            //sourceconnection =[];
-            //sourceconnection = jsPlumb.getConnections({ source:info.sourceId }); //pega conexões de source
-            targetconnection = [];
-            targetconnection = jsPlumb.getConnections({ target:info.targetId}); //pega conexões do target
-            //console.log(sourceconnection);
-            console.log(targetconnection);
-            console.log(targetconnection.length);
-            if(($("#"+info.targetId)).hasClass("and")){
-                ($("#"+id)).attr("data-value", false);
 
-
+        function updater(current){
+            var receivingconnections = [];
+            var receivingconnections = jsPlumb.getConnections({ target:current}); //pega conexões do target
+            var receivingvalues = [];
+            var sendingconnections = [];
+            var sendingconnections = jsPlumb.getConnections({ source:current});
+            console.log("receiving connections "+receivingconnections[0].sourceId+" "+$("#"+receivingconnections[0].sourceId).attr("data-value")+" "+receivingconnections[1].sourceId+" "+$("#"+receivingconnections[1].sourceId).attr("data-value"));
+            for (let elem of receivingconnections) {
+                receivingvalues.push($("#"+elem.sourceId).attr("data-value"));
             }
+            while (receivingvalues.length < 2){
+                receivingvalues.push(false);
+            }
+            console.log("valores enviados para o solver: "+receivingvalues[0]+" "+receivingvalues[1]);
+            //alert("valores recebidos "+receivingvalues[0]+" "+receivingvalues[1]);
+            console.log("valor resolvido "+solver(current,receivingvalues));
+            $("#"+current).attr("data-value", solver(current,receivingvalues));
+            if (sendingconnections.length > 0){
+                var next = sendingconnections[0].targetId;
+                if ($("#"+next).hasClass( "led" )){
+                    if(($("#"+current)).attr("data-value") == true){
+                                ($("#"+next)).text("ON");
+                                ($("#"+next)).attr("data-value", true);
+                            }
+                    else if(($("#"+current)).attr("data-value") == false){
+                                ($("#"+next)).text("OFF");
+                                ($("#"+next)).attr("data-value", false);
+                            }
+                    }
+                else{updater(next);}
+            }
+
+        }
+
+        jsPlumb.bind("connection", function (info, originalEvent) {
+            if (info.sourceId == info.targetId) {
+                //console.log('sourceId == targetId');
+                alert("Conexão inválida.");
+                jsPlumb.detach(info);
+            }
+            else{
+                updater(info.targetId);
+                }
+        });
+
+        jsPlumb.bind("detach", function (info, originalEvent) {
+            updater(info.targetId);            
+        });
+
 
 
             //alert("oi");
-
+        //function solver()
 
 
         /*alert(info.sourceId);
@@ -320,13 +412,8 @@
         alert(info.targetEndpoint);
         alert(info.connection);
         */
-        });
-
-        /*function updatenodes(){
 
 
-
-        }*/
             
             $("#diagramContainer").mousedown(diagramContainer_MouseDown);
             $("#diagramContainer").mousemove(diagramContainer_MouseMove);
