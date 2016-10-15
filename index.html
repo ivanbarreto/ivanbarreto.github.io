@@ -316,7 +316,7 @@
                 else {return true;}
                 break;
                 case 'not':
-                if (valuesources[0] == false){
+                if (valuesources[0] == 'false'){
                     return true;
                 }
                 else{return false;}
@@ -355,12 +355,11 @@
             var receivingvalues = [];
             var sendingconnections = [];
             var sendingconnections = jsPlumb.getConnections({ source:current});
-            console.log("receiving connections "+receivingconnections[0].sourceId+" "+$("#"+receivingconnections[0].sourceId).attr("data-value")+" "+receivingconnections[1].sourceId+" "+$("#"+receivingconnections[1].sourceId).attr("data-value"));
             for (let elem of receivingconnections) {
                 receivingvalues.push($("#"+elem.sourceId).attr("data-value"));
             }
             while (receivingvalues.length < 2){
-                receivingvalues.push(false);
+                receivingvalues.push("false");
             }
             console.log("valores enviados para o solver: "+receivingvalues[0]+" "+receivingvalues[1]);
             //alert("valores recebidos "+receivingvalues[0]+" "+receivingvalues[1]);
