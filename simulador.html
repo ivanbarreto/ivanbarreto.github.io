@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #mastercontainer {
+            display: inline-block;
+            border: 1px solid black;
+            background-color: solid gray;
+
+        }
+
+        #diagramContainer {
+            padding: 20px;
+            width:990px; height: 600px;
+            border: 1px solid gray;
+        }
+        
+        .selected {
+            border: 2px solid red;
+        }
+        .port {
+            position: absolute;
+            height:40px; width: 100px;
+            float: left;
+            background-size: contain;
+            background: no-repeat;
+            background-size: 100% 100%;
+        }
+        .led {
+            position: absolute;
+            width: 60px; height: 60px;
+            float: left;
+            background-size: contain;
+            background-image: url("img/ledoff.svg");
+        }
+        .ledon {
+            position: absolute;
+            width: 60px; height: 60px;
+            float: left;
+            background-size: contain;
+            background-image: url("img/ledon.svg");
+        }
+        .power {
+            position: absolute;
+            height:60px; width: 60px;
+            float: left;
+            background-size: contain;
+            background-image: url("img/poweroff.svg");
+        }
+        .poweron{
+            position: absolute;
+            height:60px; width: 60px;
+            float: left;
+            background-size: contain;
+            background-image: url("img/poweron.svg");
+        }
+
+        .button {
+            background-color: lightgrey;
+            border: 2px solid black;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .buttonalt {
+            background-color: lightblue;
+            border: 2px solid black;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .images{
+            max-width:100%;
+            max-height:100%;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jsPlumb-2.1.7.js"></script>
+    
+    <script>
+        var selection = 'and';
+        function select(a){
+            selection = a;
+            $(".buttonalt").addClass("button");
+            $(".buttonalt").removeClass("buttonalt");
+            $("#"+selection).removeClass("button");
+            $("#"+selection).addClass("buttonalt");
+            }
+        jsPlumb.ready(function() {
+        
+        var startPoint = {};
+        var rubberbandDrawingActive = false;
+        var diagram = $('#diagramContainer');
+        var tempnum = 0;
+        var firstInstance = jsPlumb.getInstance();
+        var commonsource = {
+            isSource:true,
+            isTarget:false,
+            connector: ["Straight"],
+            endpoint:"Dot",
+            paintStyle:{ radius:7, fillStyle:"black", outlineColor:"black", outlineWidth:1 },
+            hoverPaintStyle:{ fillStyle:"black" },
+            connectorStyle:{ strokeStyle:"black", lineWidth:2 },
+            connectorHoverStyle:{ lineWidth:3 }
+            };
+        var commontarget = {
+            isSource:false,
+            isTarget:true,
+            connector: ["Straight"],
+            endpoint:"Dot",
+            paintStyle:{ radius:7, fillStyle:"black", outlineColor:"black", outlineWidth:1 },
+            hoverPaintStyle:{ fillStyle:"black" },
+            connectorStyle:{ strokeStyle:"black", lineWidth:2 },
+            connectorHoverStyle:{ lineWidth:3 }
+            };
+        var elements = {}
+            elements.and = 0;
+            elements.nand = 0;
+            elements.not = 0;
+            elements.or = 0;
+            elements.nor = 0;
+            elements.xor = 0;
+            elements.xnor = 0;
+            elements.led = 0;
+            elements.power = 0;
+        function generatedid(){
+            var tempnum = 0;
+            switch(selection) {
+                case 'and': 
+                elements.and = elements.and+1;
+                tempnum = elements.and-1;
+                break;
+                case 'nand':
+                elements.nand = elements.nand+1;
+                tempnum = elements.nand-1;
+                break;
+                case 'not':
+                elements.not = elements.not+1;
+                tempnum = elements.not-1;
+                break;
+                case 'or':
+                elements.or = elements.or+1;
+                tempnum = elements.or-1;
+                break;
+                case 'nor':
+                elements.nor = elements.nor+1;
+                tempnum = elements.nor-1;
+                break;
+                case 'xor':
+                elements.xor = elements.xor+1;
+                tempnum = elements.xor-1;
+                break;
+                case 'xnor':
+                elements.xnor = elements.xnor+1;
+                tempnum = elements.xnor-1;
+                break;
+                case 'led':
+                elements.led = elements.led+1;
+                tempnum = elements.led-1;
+                break;
+                case 'power':
+                elements.power = elements.power+1;
+                tempnum = elements.power-1;
+                break;     
+                }
+            return (tempnum).toString();   
+        }
+        
+        function createelement(x,y){
+            var id = selection+generatedid();
+            if(selection == 'power' || selection == 'led'){
+            var port = '<div id="'+id+'" data-value="false" class="'+selection+' item"></div>';
+                diagram.append(port).css({
+                left: x,
+                top: y
+            });
+            //$("#"+id).prepend('<img class="images" src="img/'+selection+'off.svg" />');
+            }
+            else{
+                var port = '<div id="'+id+'" data-value="false" class="'+selection+' item port"></div>';
+                diagram.append(port).css({
+                left: x,
+                top: y
+            });
+            } 
+            jsPlumb.draggable($("#"+id));
+            if(selection == 'and' || 
+                selection == 'nand' || 
+                selection == 'or' || 
+                selection == 'nor' || 
+                selection == 'xor' || 
+                selection == 'xnor'){
+                //$("#"+id).addClass("port");
+                $("#"+id).css("background-image", "url(img/"+selection+".svg)"); 
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Right"]
+                }, commonsource);
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:[[0, 0.25, -1, 0]]
+                }, commontarget);
+                
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:[[0, 0.75, -1, 0]]
+                }, commontarget);   
+            }
+            else if(selection == 'not'){
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Right"]
+                }, commonsource); 
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Left"]
+                }, commontarget);
+                $("#"+id).css("background-image", "url(img/"+selection+".svg)"); 
+  
+            }
+            
+            else if(selection == 'led'){
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Left"]
+                }, commontarget);    
+            }
+            else if(selection == 'power'){
+                //($("#"+id)).text("OFF");
+                jsPlumb.addEndpoint($("#"+id), {
+                    anchors:["Right"]
+                }, commonsource);
+                var startPoint = [];
+                ($( "#"+id)).mousedown(function() {
+                    startPoint.x = event.pageX;         
+                    startPoint.y = event.pageY;
+                });
+                ($("#"+id)).mouseup(function() {
+                        if(startPoint.x === event.pageX && startPoint.y === event.pageY){
+                            if(($("#"+id)).hasClass("power")){
+                                //($("#"+id)).text("ON");
+                                //$("#"+id).css("background-image", "url(img/poweron.svg)");  
+                                $("#"+id).removeClass( "power" ).addClass( "poweron" );  
+                                ($("#"+id)).attr("data-value", true);
+                            }
+                            else if(($("#"+id)).hasClass("poweron")){
+                                //($("#"+id)).text("OFF");
+                                $("#"+id).removeClass( "poweron" ).addClass( "power" );  
+                                ($("#"+id)).attr("data-value", false);
+
+                            }
+                            if(jsPlumb.getConnections({ source:id }).length == 1){
+                                var next = jsPlumb.getConnections({ source:id});
+                                updater(next[0].targetId); //falta parâmetros
+                            }
+                        } 
+                    });
+                };
+            }
+        function diagramContainer_MouseDown(event) {
+            startPoint.x = event.pageX;         
+            startPoint.y = event.pageY;
+            
+            $("#rubberband").css({top:startPoint.y, left:startPoint.x, height:1, width:1, position:'absolute'});
+            $("#rubberband").show();
+        }
+        
+        function diagramContainer_MouseMove(event) {
+            if($("#rubberband").is(":visible") !== true) { return; }
+            
+            var t = (event.pageY > startPoint.y) ? startPoint.y : event.pageY;
+            var l = (event.pageX >= startPoint.x) ? startPoint.x : event.pageX;
+            
+            wcalc = event.pageX - startPoint.x;
+            var w = (event.pageX > startPoint.x) ? wcalc : (wcalc * -1); 
+            
+            hcalc = event.pageY - startPoint.y;
+            var h = (event.pageY > startPoint.y) ? hcalc : (hcalc * -1); 
+            
+            $("#rubberband").css({top:t, left:l, height:h, width:w, position:'absolute'});
+        }
+        
+        function diagramContainer_MouseUp(event) {
+            diagramContainer_FindSelectedItem();
+            $("#rubberband").hide();
+        }
+        
+        function diagramContainer_FindSelectedItem() {
+            if($("#rubberband").is(":visible") !== true) { return; }
+            
+            var rubberbandOffset = getTopLeftOffset($("#rubberband"));
+            $(".item").each(function() {
+                var itemOffset = getTopLeftOffset($(this));
+                if( itemOffset.top > rubberbandOffset.top &&
+                    itemOffset.left > rubberbandOffset.left &&
+                    itemOffset.right < rubberbandOffset.right &&
+                    itemOffset.bottom < rubberbandOffset.bottom) {
+                    $(this).addClass("selected");
+                    var elementid = $(this).attr('id');
+                    jsPlumb.addToDragSelection(elementid);
+                }
+            });
+        }
+        
+        function getTopLeftOffset(element) {
+            var elementDimension = {};
+            elementDimension.left = element.offset().left;
+            elementDimension.top =  element.offset().top;
+            elementDimension.right = elementDimension.left + element.outerWidth();
+            elementDimension.bottom = elementDimension.top + element.outerHeight();
+            
+            return elementDimension;
+        }
+        
+        function diagramContainer_Click(event) {
+            if(startPoint.x === event.pageX && startPoint.y === event.pageY)
+            {
+                jsPlumb.clearDragSelection();
+                $(".item").each(function() {
+                    $(this).removeClass("selected");
+                });
+            }
+        }
+        
+        function diagramContainer_dblClick(event) {
+            var x = event.pageX;
+            var y = event.pageY;
+            createelement(x,y);
+        }
+
+        function solver(name, valuesources){
+            var normid = name.replace(/[0-9]/g, '');
+            console.log("valores recebidos pelo solver "+ normid+ " "+valuesources[0]+" "+valuesources[1]);
+            switch(normid) {
+                case 'and':
+                //alert("entrei pelo menos"); 
+                if (valuesources[0] == 'true' && valuesources[1] == 'true'){
+                    //alert("deu certo");
+                    return true;
+                    }
+                else {return false;}
+                break;
+                case 'nand':
+                if (valuesources[0] == 'true' && valuesources[1] == 'true'){
+                    return false;
+                    }
+                else {return true;}
+                break;
+                case 'not':
+                if (valuesources[0] == 'false'){
+                    return true;
+                }
+                else{return false;}
+                break;
+                case 'or':
+                if (valuesources[0] == 'false' && valuesources[1] == 'false'){
+                    return false;
+                }
+                else{return true;}
+                break;
+                case 'nor':
+                if (valuesources[0] == 'false' && valuesources[1] == 'false'){
+                    return true;
+                }
+                else{return false;}
+                break;
+                case 'xor':
+                if (valuesources[0] == valuesources[1]){
+                    return false;
+                }
+                else{return true;}
+                break;
+                case 'xnor':
+                if (valuesources[0] == valuesources[1]){
+                    return true;
+                }
+                else{return false;}
+                break;
+                case 'led':
+                return valuesources[0];
+                break;  
+                } 
+        }
+        
+
+        function updater(current){
+            var receivingconnections = [];
+            var receivingconnections = jsPlumb.getConnections({ target:current}); //pega conexões do target
+            var receivingvalues = [];
+            var sendingconnections = [];
+            var sendingconnections = jsPlumb.getConnections({ source:current});
+            for (let elem of receivingconnections) {
+                receivingvalues.push($("#"+elem.sourceId).attr("data-value"));
+            }
+            while (receivingvalues.length < 2){
+                receivingvalues.push("false");
+            }
+            console.log("valores enviados para o solver: "+receivingvalues[0]+" "+receivingvalues[1]);
+            //alert("valores recebidos "+receivingvalues[0]+" "+receivingvalues[1]);
+            console.log("valor resolvido "+solver(current,receivingvalues));
+            $("#"+current).attr("data-value", solver(current,receivingvalues));
+            if ($("#"+current).hasClass( "led" ) || $("#"+current).hasClass( "ledon" )){
+                //console.log("tem led aí");
+                if(($("#"+current)).attr("data-value") == 'true'){
+                    $("#"+current).removeClass( "led" ).addClass( "ledon" );  
+                    //($("#"+current)).text("ON");
+                }
+                else if(($("#"+current)).attr("data-value") == 'false'){
+                    $("#"+current).removeClass( "ledon" ).addClass( "led" );  
+                    //($("#"+current)).text("OFF");
+                }
+            }
+            if (sendingconnections.length > 0){
+                var next = sendingconnections[0].targetId;
+                updater(next);
+            }
+        }
+
+        jsPlumb.bind("connection", function (info, originalEvent) {
+            if (info.sourceId == info.targetId) {
+                //console.log('sourceId == targetId');
+                alert("Conexão inválida.");
+                jsPlumb.detach(info);
+            }
+            else{
+                updater(info.targetId);
+                }
+        });
+
+        jsPlumb.bind("connectionDetached", function (info, originalEvent) {
+            console.log(info.targetId);
+            updater(info.targetId);            
+        });
+
+        jsPlumb.bind("connectionMoved", function (info, originalEvent) {
+            updater(info.originalTargetId);
+            updater(info.newTargetId);            
+        });
+
+        $('html').keyup(function(event){
+            if(event.keyCode == 46) {
+            var elementos = [];
+            var elementos = $(".selected");//.attr("id");
+            console.log(elementos);
+            for (var i = 0; i< elementos.length;i++) {
+                jsPlumb.remove(elementos[i]);
+            }
+
+    }
+});
+
+        /*jsPlumb.detachAllConnections(targetBoxId);
+        jsPlumb.removeAllEndpoints(targetBoxId);
+        jsPlumb.detach(targetBoxId); // <--
+        targetBoxId.remove()
+
+
+            //alert("oi");
+        //function solver()
+
+
+        /*alert(info.sourceId);
+        alert(info.targetId);
+        alert(info.source);
+        alert(info.target);
+        alert(info.sourceEndpoint);
+        alert(info.targetEndpoint);
+        alert(info.connection);
+        */
+
+
+            
+            $("#diagramContainer").mousedown(diagramContainer_MouseDown);
+            $("#diagramContainer").mousemove(diagramContainer_MouseMove);
+            $("#diagramContainer").mouseup(diagramContainer_MouseUp);
+            $("#diagramContainer").click(diagramContainer_Click);
+            $("#diagramContainer").dblclick(diagramContainer_dblClick);
+        });
+    </script> 
+
+
+<body>
+    <div id="mastercontainer">
+        <button class="buttonalt" id="and" onclick="select('and')">AND</button>
+        <button class="button" id="nand" onclick="select('nand')">NAND</button>
+        <button class="button" id="not" onclick="select('not')">NOT</button>
+        <button class="button" id="or" onclick="select('or')">OR</button>
+        <button class="button" id="nor" onclick="select('nor')">NOR</button>
+        <button class="button" id="xor" onclick="select('xor')">XOR</button>
+        <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
+        <button class="button" id="led" onclick="select('led')">LED</button>
+        <button class="button" id="power" onclick="select('power')">POWER</button>
+        <div id="diagramContainer">
+            <div id="rubberband" style="border:1px solid green;display:none;"></div>     
+            
+        </div>
+    </div>
+</body>
+</html>
