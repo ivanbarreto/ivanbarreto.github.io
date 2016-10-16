@@ -343,7 +343,7 @@
                 if (valuesources[0] == valuesources[1]){
                     return true;
                 }
-                else{return false;}
+                else{return true;}
                 break; 
                 } 
         }
@@ -368,11 +368,12 @@
             if (sendingconnections.length > 0){
                 var next = sendingconnections[0].targetId;
                 if ($("#"+next).hasClass( "led" )){
-                    if(($("#"+current)).attr("data-value") == true){
+                    alert("tem led aí");
+                    if(($("#"+current)).attr("data-value") == 'true'){
                                 ($("#"+next)).text("ON");
                                 ($("#"+next)).attr("data-value", true);
                             }
-                    else if(($("#"+current)).attr("data-value") == false){
+                    else if(($("#"+current)).attr("data-value") == 'false'){
                                 ($("#"+next)).text("OFF");
                                 ($("#"+next)).attr("data-value", false);
                             }
