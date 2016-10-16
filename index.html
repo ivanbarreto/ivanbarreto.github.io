@@ -20,25 +20,41 @@
         }
         .port {
             position: absolute;
-            height:80px; width: 80px;
-            border: 1px solid black;
+            height:40px; width: 100px;
             float: left;
+            background-size: contain;
+            background: no-repeat;
+            background-size: 100% 100%;
         }
         .led {
-            border-radius: 50%;
             position: absolute;
-            width: 80px; height: 80px;
-            background: solid red;
-            border: 5px solid black;
+            width: 60px; height: 60px;
             float: left;
+            background-size: contain;
+            background-image: url("img/ledoff.svg");
+        }
+        .ledon {
+            position: absolute;
+            width: 60px; height: 60px;
+            float: left;
+            background-size: contain;
+            background-image: url("img/ledon.svg");
         }
         .power {
             position: absolute;
-            height:80px; width: 80px;
+            height:60px; width: 60px;
             float: left;
-            background-color: solid red;
-            border: 5px solid black;
+            background-size: contain;
+            background-image: url("img/poweroff.svg");
         }
+        .poweron{
+            position: absolute;
+            height:60px; width: 60px;
+            float: left;
+            background-size: contain;
+            background-image: url("img/poweron.svg");
+        }
+
         .button {
             background-color: lightgrey;
             border: 2px solid black;
@@ -62,6 +78,11 @@
             font-size: 16px;
             margin: 4px 2px;
             cursor: pointer;
+        }
+        .images{
+            max-width:100%;
+            max-height:100%;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -88,12 +109,22 @@
         var commonsource = {
             isSource:true,
             isTarget:false,
-            connector: ["Straight"]
+            connector: ["Straight"],
+            endpoint:"Dot",
+            paintStyle:{ radius:7, fillStyle:"black", outlineColor:"black", outlineWidth:1 },
+            hoverPaintStyle:{ fillStyle:"black" },
+            connectorStyle:{ strokeStyle:"black", lineWidth:2 },
+            connectorHoverStyle:{ lineWidth:3 }
             };
         var commontarget = {
             isSource:false,
             isTarget:true,
-            connector: ["Straight"]
+            connector: ["Straight"],
+            endpoint:"Dot",
+            paintStyle:{ radius:7, fillStyle:"black", outlineColor:"black", outlineWidth:1 },
+            hoverPaintStyle:{ fillStyle:"black" },
+            connectorStyle:{ strokeStyle:"black", lineWidth:2 },
+            connectorHoverStyle:{ lineWidth:3 }
             };
         var elements = {}
             elements.and = 0;
@@ -156,6 +187,7 @@
                 left: x,
                 top: y
             });
+            //$("#"+id).prepend('<img class="images" src="img/'+selection+'off.svg" />');
             }
             else{
                 var port = '<div id="'+id+'" data-value="false" class="'+selection+' item port"></div>';
@@ -172,15 +204,16 @@
                 selection == 'xor' || 
                 selection == 'xnor'){
                 //$("#"+id).addClass("port");
+                $("#"+id).css("background-image", "url(img/"+selection+".svg)"); 
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
                 }, commonsource);
                 jsPlumb.addEndpoint($("#"+id), {
-                    anchors:["BottomLeft"]
+                    anchors:[[0, 0.25, -1, 0]]
                 }, commontarget);
                 
                 jsPlumb.addEndpoint($("#"+id), {
-                    anchors:["TopLeft"]
+                    anchors:[[0, 0.75, -1, 0]]
                 }, commontarget);   
             }
             else if(selection == 'not'){
@@ -189,7 +222,9 @@
                 }, commonsource); 
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Left"]
-                }, commontarget);      
+                }, commontarget);
+                $("#"+id).css("background-image", "url(img/"+selection+".svg)"); 
+  
             }
             
             else if(selection == 'led'){
@@ -198,7 +233,7 @@
                 }, commontarget);    
             }
             else if(selection == 'power'){
-                ($("#"+id)).text("OFF");
+                //($("#"+id)).text("OFF");
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
                 }, commonsource);
@@ -209,12 +244,15 @@
                 });
                 ($("#"+id)).mouseup(function() {
                         if(startPoint.x === event.pageX && startPoint.y === event.pageY){
-                            if(($("#"+id)).text() == "OFF"){
-                                ($("#"+id)).text("ON");
+                            if(($("#"+id)).hasClass("power")){
+                                //($("#"+id)).text("ON");
+                                //$("#"+id).css("background-image", "url(img/poweron.svg)");  
+                                $("#"+id).removeClass( "power" ).addClass( "poweron" );  
                                 ($("#"+id)).attr("data-value", true);
                             }
-                            else if(($("#"+id)).text() == "ON"){
-                                ($("#"+id)).text("OFF");
+                            else if(($("#"+id)).hasClass("poweron")){
+                                //($("#"+id)).text("OFF");
+                                $("#"+id).removeClass( "poweron" ).addClass( "power" );  
                                 ($("#"+id)).attr("data-value", false);
 
                             }
@@ -344,7 +382,10 @@
                     return true;
                 }
                 else{return true;}
-                break; 
+                break;
+                case 'led':
+                return valuesources[0];
+                break;  
                 } 
         }
         
@@ -365,22 +406,21 @@
             //alert("valores recebidos "+receivingvalues[0]+" "+receivingvalues[1]);
             console.log("valor resolvido "+solver(current,receivingvalues));
             $("#"+current).attr("data-value", solver(current,receivingvalues));
+            if ($("#"+current).hasClass( "led" ) || $("#"+current).hasClass( "ledon" )){
+                //console.log("tem led aí");
+                if(($("#"+current)).attr("data-value") == 'true'){
+                    $("#"+current).removeClass( "led" ).addClass( "ledon" );  
+                    //($("#"+current)).text("ON");
+                }
+                else if(($("#"+current)).attr("data-value") == 'false'){
+                    $("#"+current).removeClass( "ledon" ).addClass( "led" );  
+                    //($("#"+current)).text("OFF");
+                }
+            }
             if (sendingconnections.length > 0){
                 var next = sendingconnections[0].targetId;
-                if ($("#"+next).hasClass( "led" )){
-                    alert("tem led aí");
-                    if(($("#"+current)).attr("data-value") == 'true'){
-                                ($("#"+next)).text("ON");
-                                ($("#"+next)).attr("data-value", true);
-                            }
-                    else if(($("#"+current)).attr("data-value") == 'false'){
-                                ($("#"+next)).text("OFF");
-                                ($("#"+next)).attr("data-value", false);
-                            }
-                    }
-                else{updater(next);}
+                updater(next);
             }
-
         }
 
         jsPlumb.bind("connection", function (info, originalEvent) {
@@ -394,8 +434,14 @@
                 }
         });
 
-        jsPlumb.bind("detach", function (info, originalEvent) {
+        jsPlumb.bind("connectionDetached", function (info, originalEvent) {
+            console.log(info.targetId);
             updater(info.targetId);            
+        });
+
+        jsPlumb.bind("connectionMoved", function (info, originalEvent) {
+            updater(info.originalTargetId);
+            updater(info.newTargetId);            
         });
 
 
