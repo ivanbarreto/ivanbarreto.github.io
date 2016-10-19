@@ -114,7 +114,8 @@
             paintStyle:{ radius:7, fillStyle:"black", outlineColor:"black", outlineWidth:1 },
             hoverPaintStyle:{ fillStyle:"black" },
             connectorStyle:{ strokeStyle:"black", lineWidth:2 },
-            connectorHoverStyle:{ lineWidth:3 }
+            connectorHoverStyle:{ lineWidth:3 },
+            maxConnections: -1
             };
         var commontarget = {
             isSource:false,
@@ -256,7 +257,7 @@
                                 ($("#"+id)).attr("data-value", false);
 
                             }
-                            if(jsPlumb.getConnections({ source:id }).length == 1){
+                            if(jsPlumb.getConnections({ source:id }).length >= 1){
                                 var next = jsPlumb.getConnections({ source:id});
                                 updater(next[0].targetId); //falta parâmetros
                             }
