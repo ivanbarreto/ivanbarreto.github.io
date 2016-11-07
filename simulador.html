@@ -180,23 +180,18 @@
             return (tempnum).toString();   
         }
         
-        function createelement(x,y){
+        function createelement(xi,yi){
             var id = selection+generatedid();
             if(selection == 'power' || selection == 'led'){
-            var port = '<div id="'+id+'" data-value="false" class="'+selection+' item"></div>';
-                diagram.append(port).css({
-                left: x,
-                top: y
-            });
+            var port = '<div style="left:'+xi+'px; top:'+yi+'px" id="'+id+'" data-value="false" class="'+selection+' item"></div>';
+                diagram.append(port);
             //$("#"+id).prepend('<img class="images" src="img/'+selection+'off.svg" />');
             }
             else{
-                var port = '<div id="'+id+'" data-value="false" class="'+selection+' item port"></div>';
-                diagram.append(port).css({
-                left: x,
-                top: y
-            });
-            } 
+                var port = '<div style="left:'+xi+'px; top:'+yi+'px" id="'+id+'" data-value="false" class="'+selection+' item port"></div>';
+                diagram.append(port);
+            }
+
             jsPlumb.draggable($("#"+id));
             if(selection == 'and' || 
                 selection == 'nand' || 
@@ -331,9 +326,9 @@
         }
         
         function diagramContainer_dblClick(event) {
-            var x = event.pageX;
-            var y = event.pageY;
-            createelement(x,y);
+            startPoint.x = event.pageX;         
+            startPoint.y = event.pageY;
+            createelement(startPoint.x,startPoint.y);
         }
 
         function solver(name, valuesources){
