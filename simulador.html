@@ -183,11 +183,15 @@
         function createelement(xi,yi){
             var id = selection+generatedid();
             if(selection == 'power' || selection == 'led'){
+            xi = xi-30;
+            yi = yi-30;
             var port = '<div style="left:'+xi+'px; top:'+yi+'px" id="'+id+'" data-value="false" class="'+selection+' item"></div>';
                 diagram.append(port);
             //$("#"+id).prepend('<img class="images" src="img/'+selection+'off.svg" />');
             }
             else{
+            xi = xi-50;
+            yi = yi-20;
                 var port = '<div style="left:'+xi+'px; top:'+yi+'px" id="'+id+'" data-value="false" class="'+selection+' item port"></div>';
                 diagram.append(port);
             }
