@@ -258,7 +258,10 @@
                             }
                             if(jsPlumb.getConnections({ source:id }).length >= 1){
                                 var next = jsPlumb.getConnections({ source:id});
-                                updater(next[0].targetId); //falta parâmetros
+                                for (let elem of next) {
+                                    updater(elem.targetId);
+                                }
+                                //updater(next[0].targetId); //falta parâmetros
                             }
                         } 
                     });
@@ -418,8 +421,9 @@
                 }
             }
             if (sendingconnections.length > 0){
-                var next = sendingconnections[0].targetId;
-                updater(next);
+                for (let elem of sendingconnections) {
+                    updater(elem.targetId);
+                }
             }
         }
 
