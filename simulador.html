@@ -197,6 +197,9 @@
             }
 
             jsPlumb.draggable($("#"+id));
+            $("#"+id).draggable({
+                containment: 'parent'
+            });
             if(selection == 'and' || 
                 selection == 'nand' || 
                 selection == 'or' || 
