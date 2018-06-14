@@ -2,24 +2,46 @@
 <html>
 <head>
     <style>
+        html, body {
+            width: 100%; height: 100%;
+            margin: 0px;
+        }
+        
         #mastercontainer {
+            position: absolute;
+            overflow: hidden;
             display: inline-block;
             border: 1px solid black;
             background-color: solid gray;
+            height: 100%; width: 100%;
+        }
 
+        #buttoncontainer {
+            display: table-column-group;
+            border: 1px solid gray;
+            background:lightslategrey;
+            height: 10%;
+            width: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
         }
 
         #diagramContainer {
-            padding: 20px;
-            width:990px; height: 600px;
+            position: absolute;
+            padding: 10px;
+            background: white;
+            width:100%; height: 100%    ;
             border: 1px solid gray;
+            top: 10%;
+            overflow: scroll;
         }
         
         .selected {
             border: 2px solid red;
         }
         .port {
-            position: absolute;
+            position: absolute; 
             height:40px; width: 100px;
             float: left;
             background-size: contain;
@@ -27,17 +49,23 @@
             background-size: 100% 100%;
         }
         .led {
-            position: absolute;
+            position: relative;
             width: 60px; height: 60px;
             float: left;
+            display: block;
             background-size: contain;
+            background: no-repeat;
+            background-size: 100% 100%;
             background-image: url("img/ledoff.svg");
         }
         .ledon {
-            position: absolute;
+            position: relative;
             width: 60px; height: 60px;
             float: left;
+            display: block;
             background-size: contain;
+            background: no-repeat;
+            background-size: 100% 100%;
             background-image: url("img/ledon.svg");
         }
         .power {
@@ -45,6 +73,8 @@
             height:60px; width: 60px;
             float: left;
             background-size: contain;
+            background: no-repeat;
+            background-size: 100% 100%;
             background-image: url("img/poweroff.svg");
         }
         .poweron{
@@ -52,36 +82,42 @@
             height:60px; width: 60px;
             float: left;
             background-size: contain;
+            background: no-repeat;
+            background-size: 100% 100%;
             background-image: url("img/poweron.svg");
         }
 
         .button {
+            display: table-column;
             background-color: lightgrey;
             border: 2px solid black;
             color: black;
-            padding: 15px 32px;
+            width: 8%;
+            height: 80%;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
             margin: 4px 2px;
+            font-size: 1.3vw;
             cursor: pointer;
         }
         .buttonalt {
+            display: table-column;
             background-color: lightblue;
             border: 2px solid black;
             color: black;
-            padding: 15px 32px;
+            width: 8%;
+            height: 80%;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 1.3vw;
             margin: 4px 2px;
             cursor: pointer;
         }
         .images{
-            max-width:100%;
-            max-height:100%;
+            width:100%;
+            height:100%;
             vertical-align: middle;
         }
     </style>
@@ -270,6 +306,8 @@
                     });
                 };
             }
+        
+        var rubberband = $("#rubberband");
         function diagramContainer_MouseDown(event) {
             startPoint.x = event.pageX;         
             startPoint.y = event.pageY;
@@ -340,7 +378,6 @@
             startPoint.y = event.pageY;
             createelement(startPoint.x,startPoint.y);
         }
-
         function solver(name, valuesources){
             var normid = name.replace(/[0-9]/g, '');
             console.log("valores recebidos pelo solver "+ normid+ " "+valuesources[0]+" "+valuesources[1]);
@@ -408,9 +445,9 @@
             while (receivingvalues.length < 2){
                 receivingvalues.push("false");
             }
-            console.log("valores enviados para o solver: "+receivingvalues[0]+" "+receivingvalues[1]);
+            //console.log("valores enviados para o solver: "+receivingvalues[0]+" "+receivingvalues[1]);
             //alert("valores recebidos "+receivingvalues[0]+" "+receivingvalues[1]);
-            console.log("valor resolvido "+solver(current,receivingvalues));
+            //console.log("valor resolvido "+solver(current,receivingvalues));
             $("#"+current).attr("data-value", solver(current,receivingvalues));
             if ($("#"+current).hasClass( "led" ) || $("#"+current).hasClass( "ledon" )){
                 //console.log("tem led aí");
@@ -450,6 +487,14 @@
             updater(info.originalTargetId);
             updater(info.newTargetId);            
         });
+        
+        $("#diagramContainer").mousemove(function(event) {
+            var offset = $(this).offset();
+            var x,y;
+            x = event.pageX- offset.left;
+            y = event.pageY- offset.top;
+            console.log("X: "+x+" Y: "+y);
+        });
 
         $('html').keyup(function(event){
             if(event.keyCode == 46) {
@@ -459,8 +504,7 @@
             for (var i = 0; i< elementos.length;i++) {
                 jsPlumb.remove(elementos[i]);
             }
-
-    }
+        }
 });
 
         /*jsPlumb.detachAllConnections(targetBoxId);
@@ -495,15 +539,19 @@
 
 <body>
     <div id="mastercontainer">
-        <button class="buttonalt" id="and" onclick="select('and')">AND</button>
-        <button class="button" id="nand" onclick="select('nand')">NAND</button>
-        <button class="button" id="not" onclick="select('not')">NOT</button>
-        <button class="button" id="or" onclick="select('or')">OR</button>
-        <button class="button" id="nor" onclick="select('nor')">NOR</button>
-        <button class="button" id="xor" onclick="select('xor')">XOR</button>
-        <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
-        <button class="button" id="led" onclick="select('led')">LED</button>
-        <button class="button" id="power" onclick="select('power')">POWER</button>
+        <div id="buttoncontainer">
+            <button class="buttonalt" id="and" onclick="select('and')">AND</button>
+            <button class="button" id="nand" onclick="select('nand')">NAND</button>
+            <button class="button" id="not" onclick="select('not')">NOT</button>
+            <button class="button" id="or" onclick="select('or')">OR</button>
+            <button class="button" id="nor" onclick="select('nor')">NOR</button>
+            <button class="button" id="xor" onclick="select('xor')">XOR</button>
+            <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
+            <button class="button" id="led" onclick="select('led')">LED</button>
+            <button class="button" id="power" onclick="select('power')">POWER</button>
+            <button class="button" id="delete" >DELETE</button>
+            <button class="button" id="clear" >CLEAR</button>
+        </div>
         <div id="diagramContainer">
             <div id="rubberband" style="border:1px solid green;display:none;"></div>     
             
