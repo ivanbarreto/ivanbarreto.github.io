@@ -92,7 +92,7 @@
             background-color: lightgrey;
             border: 2px solid black;
             color: black;
-            width: 8%;
+            width: 7%;
             height: 80%;
             text-align: center;
             text-decoration: none;
@@ -106,7 +106,7 @@
             background-color: lightblue;
             border: 2px solid black;
             color: black;
-            width: 8%;
+            width: 7%;
             height: 80%;
             text-align: center;
             text-decoration: none;
@@ -135,6 +135,20 @@
             $("#"+selection).removeClass("button");
             $("#"+selection).addClass("buttonalt");
             }
+
+        function cleaner(argument){
+            if(argument === 'clear'){
+                $(".item").each(function() {
+                    jsPlumb.remove($(this));
+                    });
+            }
+            else if(argument === 'delete'){
+                $(".selected").each(function() {
+                    jsPlumb.remove($(this));
+                    });
+            }
+        }
+
         jsPlumb.ready(function() {
         
         var startPoint = {};
@@ -272,7 +286,6 @@
                 }, commontarget);    
             }
             else if(selection == 'power'){
-                //($("#"+id)).text("OFF");
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
                 }, commonsource);
@@ -284,13 +297,10 @@
                 ($("#"+id)).mouseup(function() {
                         if(startPoint.x === event.pageX && startPoint.y === event.pageY){
                             if(($("#"+id)).hasClass("power")){
-                                //($("#"+id)).text("ON");
-                                //$("#"+id).css("background-image", "url(img/poweron.svg)");  
                                 $("#"+id).removeClass( "power" ).addClass( "poweron" );  
                                 ($("#"+id)).attr("data-value", true);
                             }
                             else if(($("#"+id)).hasClass("poweron")){
-                                //($("#"+id)).text("OFF");
                                 $("#"+id).removeClass( "poweron" ).addClass( "power" );  
                                 ($("#"+id)).attr("data-value", false);
 
@@ -300,7 +310,6 @@
                                 for (let elem of next) {
                                     updater(elem.targetId);
                                 }
-                                //updater(next[0].targetId); //falta parâmetros
                             }
                         } 
                     });
@@ -308,16 +317,18 @@
             }
         
         var rubberband = $("#rubberband");
+
         function diagramContainer_MouseDown(event) {
+            if(selection !== 'select') {return;}
             startPoint.x = event.pageX;         
             startPoint.y = event.pageY;
             
-            $("#rubberband").css({top:startPoint.y, left:startPoint.x, height:1, width:1, position:'absolute'});
-            $("#rubberband").show();
+            rubberband.css({top:startPoint.y, left:startPoint.x, height:1, width:1, position:'absolute'});
+            rubberband.show();
         }
         
         function diagramContainer_MouseMove(event) {
-            if($("#rubberband").is(":visible") !== true) { return; }
+            if(selection !=='select') { return; }
             
             var t = (event.pageY > startPoint.y) ? startPoint.y : event.pageY;
             var l = (event.pageX >= startPoint.x) ? startPoint.x : event.pageX;
@@ -328,18 +339,19 @@
             hcalc = event.pageY - startPoint.y;
             var h = (event.pageY > startPoint.y) ? hcalc : (hcalc * -1); 
             
-            $("#rubberband").css({top:t, left:l, height:h, width:w, position:'absolute'});
+            rubberband.css({top:t, left:l, height:h, width:w, position:'absolute'});
         }
         
         function diagramContainer_MouseUp(event) {
+            if(selection !== 'select'){ return; }
             diagramContainer_FindSelectedItem();
-            $("#rubberband").hide();
+            rubberband.hide();
         }
         
         function diagramContainer_FindSelectedItem() {
-            if($("#rubberband").is(":visible") !== true) { return; }
+            if(selection !== 'select') { return; }
             
-            var rubberbandOffset = getTopLeftOffset($("#rubberband"));
+            var rubberbandOffset = getTopLeftOffset(rubberband);
             $(".item").each(function() {
                 var itemOffset = getTopLeftOffset($(this));
                 if( itemOffset.top > rubberbandOffset.top &&
@@ -371,21 +383,19 @@
                     $(this).removeClass("selected");
                 });
             }
+            if(selection !== 'select' && selection !== 'delete' && selection !== 'clear'){
+                startPoint.x = event.pageX;         
+                startPoint.y = event.pageY;
+                createelement(startPoint.x,startPoint.y);
+            }
         }
         
-        function diagramContainer_dblClick(event) {
-            startPoint.x = event.pageX;         
-            startPoint.y = event.pageY;
-            createelement(startPoint.x,startPoint.y);
-        }
         function solver(name, valuesources){
             var normid = name.replace(/[0-9]/g, '');
             console.log("valores recebidos pelo solver "+ normid+ " "+valuesources[0]+" "+valuesources[1]);
             switch(normid) {
-                case 'and':
-                //alert("entrei pelo menos"); 
+                case 'and': 
                 if (valuesources[0] == 'true' && valuesources[1] == 'true'){
-                    //alert("deu certo");
                     return true;
                     }
                 else {return false;}
@@ -435,7 +445,7 @@
 
         function updater(current){
             var receivingconnections = [];
-            var receivingconnections = jsPlumb.getConnections({ target:current}); //pega conexões do target
+            var receivingconnections = jsPlumb.getConnections({ target:current});
             var receivingvalues = [];
             var sendingconnections = [];
             var sendingconnections = jsPlumb.getConnections({ source:current});
@@ -445,19 +455,13 @@
             while (receivingvalues.length < 2){
                 receivingvalues.push("false");
             }
-            //console.log("valores enviados para o solver: "+receivingvalues[0]+" "+receivingvalues[1]);
-            //alert("valores recebidos "+receivingvalues[0]+" "+receivingvalues[1]);
-            //console.log("valor resolvido "+solver(current,receivingvalues));
             $("#"+current).attr("data-value", solver(current,receivingvalues));
             if ($("#"+current).hasClass( "led" ) || $("#"+current).hasClass( "ledon" )){
-                //console.log("tem led aí");
                 if(($("#"+current)).attr("data-value") == 'true'){
                     $("#"+current).removeClass( "led" ).addClass( "ledon" );  
-                    //($("#"+current)).text("ON");
                 }
                 else if(($("#"+current)).attr("data-value") == 'false'){
                     $("#"+current).removeClass( "ledon" ).addClass( "led" );  
-                    //($("#"+current)).text("OFF");
                 }
             }
             if (sendingconnections.length > 0){
@@ -469,8 +473,6 @@
 
         jsPlumb.bind("connection", function (info, originalEvent) {
             if (info.sourceId == info.targetId) {
-                //console.log('sourceId == targetId');
-                alert("Conexão inválida.");
                 jsPlumb.detach(info);
             }
             else{
@@ -479,7 +481,6 @@
         });
 
         jsPlumb.bind("connectionDetached", function (info, originalEvent) {
-            console.log(info.targetId);
             updater(info.targetId);            
         });
 
@@ -488,51 +489,27 @@
             updater(info.newTargetId);            
         });
         
-        $("#diagramContainer").mousemove(function(event) {
+        /*$("#diagramContainer").mousemove(function(event) {
             var offset = $(this).offset();
             var x,y;
             x = event.pageX- offset.left;
             y = event.pageY- offset.top;
-            console.log("X: "+x+" Y: "+y);
         });
+        */
 
         $('html').keyup(function(event){
             if(event.keyCode == 46) {
             var elementos = [];
-            var elementos = $(".selected");//.attr("id");
-            console.log(elementos);
+            var elementos = $(".selected");
             for (var i = 0; i< elementos.length;i++) {
                 jsPlumb.remove(elementos[i]);
+                }
             }
-        }
-});
-
-        /*jsPlumb.detachAllConnections(targetBoxId);
-        jsPlumb.removeAllEndpoints(targetBoxId);
-        jsPlumb.detach(targetBoxId); // <--
-        targetBoxId.remove()
-
-
-            //alert("oi");
-        //function solver()
-
-
-        /*alert(info.sourceId);
-        alert(info.targetId);
-        alert(info.source);
-        alert(info.target);
-        alert(info.sourceEndpoint);
-        alert(info.targetEndpoint);
-        alert(info.connection);
-        */
-
-
-            
+        });
             $("#diagramContainer").mousedown(diagramContainer_MouseDown);
             $("#diagramContainer").mousemove(diagramContainer_MouseMove);
             $("#diagramContainer").mouseup(diagramContainer_MouseUp);
             $("#diagramContainer").click(diagramContainer_Click);
-            $("#diagramContainer").dblclick(diagramContainer_dblClick);
         });
     </script> 
 
@@ -540,6 +517,7 @@
 <body>
     <div id="mastercontainer">
         <div id="buttoncontainer">
+            <button class="button" id="select" onclick="select('select')">SELECT</button>
             <button class="buttonalt" id="and" onclick="select('and')">AND</button>
             <button class="button" id="nand" onclick="select('nand')">NAND</button>
             <button class="button" id="not" onclick="select('not')">NOT</button>
@@ -549,8 +527,8 @@
             <button class="button" id="xnor" onclick="select('xnor')">XNOR</button>
             <button class="button" id="led" onclick="select('led')">LED</button>
             <button class="button" id="power" onclick="select('power')">POWER</button>
-            <button class="button" id="delete" >DELETE</button>
-            <button class="button" id="clear" >CLEAR</button>
+            <button class="button" id="delete" onclick="cleaner('delete')" >DELETE</button>
+            <button class="button" id="clear" onclick="cleaner('clear')">CLEAR</button>
         </div>
         <div id="diagramContainer">
             <div id="rubberband" style="border:1px solid green;display:none;"></div>     
