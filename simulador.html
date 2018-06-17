@@ -6,7 +6,7 @@
             border: 1px solid #000;
             overflow-y:auto;
             height:100%;
-        }​}
+        }​
 
         
         
@@ -38,6 +38,7 @@
             border: 1px solid gray;
             overflow: scroll;
             top: 10%;
+            left:0;
         }
         
         .selected {
@@ -155,6 +156,7 @@
         jsPlumb.ready(function() {
         
         var startPoint = {};
+        var startPoints = {};
         var rubberbandDrawingActive = false;
         var diagram = $('#diagramContainer');
         var tempnum = 0;
@@ -240,7 +242,6 @@
             yi = yi-30-diagram.offset().top;
             var port = '<div style="left:'+xi+'px; top:'+yi+'px" id="'+id+'" data-value="false" class="'+selection+' item"></div>';
                 diagram.append(port);
-            //$("#"+id).prepend('<img class="images" src="img/'+selection+'off.svg" />');
             }
             else{
             xi = xi-50-diagram.offset().left;
@@ -292,26 +293,27 @@
                 jsPlumb.addEndpoint($("#"+id), {
                     anchors:["Right"]
                 }, commonsource);
-                var startPoint = [];
                 ($( "#"+id)).mousedown(function() {
+                    event.stopPropagation();
                     startPoint.x = event.pageX;         
                     startPoint.y = event.pageY;
                 });
                 ($("#"+id)).mouseup(function() {
-                        if(startPoint.x === event.pageX && startPoint.y === event.pageY){
-                            if(($("#"+id)).hasClass("power")){
-                                $("#"+id).removeClass( "power" ).addClass( "poweron" );  
-                                ($("#"+id)).attr("data-value", true);
+ 
+                    if(startPoint.x === event.pageX && startPoint.y === event.pageY){
+                        if(($("#"+id)).hasClass("power")){
+                            $("#"+id).removeClass( "power" ).addClass( "poweron" );  
+                            ($("#"+id)).attr("data-value", true);
                             }
-                            else if(($("#"+id)).hasClass("poweron")){
-                                $("#"+id).removeClass( "poweron" ).addClass( "power" );  
-                                ($("#"+id)).attr("data-value", false);
+                        else if(($("#"+id)).hasClass("poweron")){
+                            $("#"+id).removeClass( "poweron" ).addClass( "power" );  
+                            ($("#"+id)).attr("data-value", false);
 
                             }
-                            if(jsPlumb.getConnections({ source:id }).length >= 1){
-                                var next = jsPlumb.getConnections({ source:id});
-                                for (let elem of next) {
-                                    updater(elem.targetId);
+                        if(jsPlumb.getConnections({ source:id }).length >= 1){
+                            var next = jsPlumb.getConnections({ source:id});
+                            for (let elem of next) {
+                                updater(elem.targetId);
                                 }
                             }
                         } 
@@ -322,12 +324,18 @@
         var rubberband = $("#rubberband");
 
         function diagramContainer_MouseDown(event) {
-            if(selection !== 'select') {return;}
-            startPoint.x = event.pageX-diagram.offset().left;         
-            startPoint.y = event.pageY-diagram.offset().top;
+            startPoint.x = event.pageX;         
+            startPoint.y = event.pageY;
+            if(selection !== 'select'){
+                createelement(startPoint.x,startPoint.y);
+            }
+            else{
+                startPoints.x = event.pageX-diagram.offset().left;         
+                startPoints.y = event.pageY-diagram.offset().top;
+                rubberband.css({top:startPoints.y, left:startPoints.x, height:1, width:1, position:'absolute'});
+                rubberband.show();
+            }
             
-            rubberband.css({top:startPoint.y, left:startPoint.x, height:1, width:1, position:'absolute'});
-            rubberband.show();
         }
         
         function diagramContainer_MouseMove(event) {
@@ -337,22 +345,23 @@
 
 
 
-            var t = (event.pageY > startPoint.y) ? startPoint.y : event.pageY;
-            var l = (event.pageX >= startPoint.x) ? startPoint.x : event.pageX;
+            var t = (event.pageY > startPoints.y) ? startPoints.y : event.pageY;
+            var l = (event.pageX >= startPoints.x) ? startPoints.x : event.pageX;
             
-            wcalc = event.pageX - startPoint.x;
-            var w = (event.pageX > startPoint.x) ? wcalc : (wcalc * -1); 
+            wcalc = event.pageX - startPoints.x;
+            var w = (event.pageX > startPoints.x) ? wcalc : (wcalc * -1); 
             
-            hcalc = event.pageY - startPoint.y;
-            var h = (event.pageY > startPoint.y) ? hcalc : (hcalc * -1); 
+            hcalc = event.pageY - startPoints.y;
+            var h = (event.pageY > startPoints.y) ? hcalc : (hcalc * -1); 
             
             rubberband.css({top:t, left:l, height:h, width:w, position:'relative'});
         }
         
         function diagramContainer_MouseUp(event) {
-            if(selection !== 'select'){ return; }
-            diagramContainer_FindSelectedItem();
-            rubberband.hide();
+            if(selection === 'select'){
+                diagramContainer_FindSelectedItem();
+                rubberband.hide();
+            }
         }
         
         function diagramContainer_FindSelectedItem() {
@@ -385,15 +394,11 @@
         function diagramContainer_Click(event) {
             if(startPoint.x === event.pageX && startPoint.y === event.pageY)
             {
-                jsPlumb.clearDragSelection();
-                $(".item").each(function() {
+                $(".selected").each(function() {
                     $(this).removeClass("selected");
                 });
-            }
-            if(selection !== 'select' && selection !== 'delete' && selection !== 'clear'){
-                startPoint.x = event.pageX;         
-                startPoint.y = event.pageY;
-                createelement(startPoint.x,startPoint.y);
+                jsPlumb.clearDragSelection();
+
             }
         }
         
