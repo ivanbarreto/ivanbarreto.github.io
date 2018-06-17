@@ -404,7 +404,6 @@
         
         function solver(name, valuesources){
             var normid = name.replace(/[0-9]/g, '');
-            console.log("valores recebidos pelo solver "+ normid+ " "+valuesources[0]+" "+valuesources[1]);
             switch(normid) {
                 case 'and': 
                 if (valuesources[0] == 'true' && valuesources[1] == 'true'){
