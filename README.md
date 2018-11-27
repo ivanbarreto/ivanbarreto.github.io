@@ -8,10 +8,9 @@ The user can move and connect the elements by performing simple drag and drop op
 The state of the POWER element can be changed by a simple click on top of it (on/off)  
 The LED element indicates if the result of the circuit is True or False.
 ![](img/moveconnect.gif)
-By selecting the "select" button, the user can use a rubberband, just like in desktop applications to select multiple elements
+By selecting the "select" button, the user can use a rubber band, just like in desktop applications to select multiple elements
 ![](img/rubberbandandmove.gif)
-It's possible to move nested objects if they were previously selected using the rubberband feature.
-![](img/rubberbandandmove.gif)
+It's possible to move nested objects if they were previously selected using the rubber band feature.  
 The same port can be connected to multiple elements.  The user can disconnect previously connected ports by performing simple, intuitive drag and drop operations
 ![](img/multipleselect.gif)
 The user can delete selected elements by pressing the "delete" key or by clicking the "delete" button on the screen.
